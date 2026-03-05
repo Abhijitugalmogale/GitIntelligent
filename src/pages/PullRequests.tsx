@@ -82,7 +82,7 @@ const PullRequests = () => {
       {/* Table card */}
       <div className="glass-card-solid overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="border-b border-border text-muted-foreground">
                 <th className="text-left p-4 font-medium">PR Title</th>

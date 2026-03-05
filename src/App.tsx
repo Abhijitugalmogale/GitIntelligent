@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import Login from "./pages/Login";
+import OAuthCallback from "./pages/OAuthCallback";
 import Dashboard from "./pages/Dashboard";
 import PullRequests from "./pages/PullRequests";
 import Issues from "./pages/Issues";
@@ -16,6 +17,7 @@ import SettingsPage from "./pages/Settings";
 import RepoExplorer from "./pages/RepoExplorer";
 import OpenSourcePrograms from "./pages/OpenSourcePrograms";
 import NotFound from "./pages/NotFound";
+import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -26,11 +28,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" style={{ background: "#0d1117" }}>
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/auth/callback" element={<OAuthCallback />} />
       <Route
         element={
           <ProtectedRoute>

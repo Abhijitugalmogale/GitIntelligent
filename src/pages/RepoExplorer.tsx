@@ -426,7 +426,7 @@ const RepoExplorer = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex gap-3"
+                className="flex flex-col sm:flex-row gap-3"
             >
                 <div className="relative flex-1">
                     <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />

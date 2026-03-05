@@ -49,7 +49,7 @@ function SearchBar() {
   const hasResults = data && (data.prs.length > 0 || data.issues.length > 0);
 
   return (
-    <div ref={ref} className="relative w-64">
+    <div ref={ref} className="relative w-full max-w-[240px] sm:max-w-[256px]">
       <div className="relative">
         {isFetching
           ? <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 animate-spin text-primary" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
@@ -138,7 +138,7 @@ function TopNav() {
       style={{ background: "hsla(var(--card) / 0.75)", backdropFilter: "blur(20px)" }}
     >
       {/* Row 1: Logo + Search + Actions */}
-      <div className="flex items-center justify-between px-6 py-3 gap-4">
+      <div className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 gap-2 sm:gap-4">
         {/* Logo */}
         <div className="flex items-center gap-2.5 shrink-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-[hsl(285_70%_63%)] flex items-center justify-center shadow-lg shadow-primary/30">
@@ -159,7 +159,10 @@ function TopNav() {
           <ThemeToggle />
 
           {/* Bell */}
-          <button className="relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors">
+          <button
+            onClick={() => navigate("/settings")}
+            className="relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+          >
             <Bell className="w-4 h-4" />
             <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
           </button>
@@ -261,7 +264,7 @@ const DashboardLayout = () => {
     <div className="min-h-screen flex flex-col w-full mesh-bg">
       <AutoNotificationWatcher />
       <TopNav />
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-3 sm:p-6 overflow-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

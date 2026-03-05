@@ -445,7 +445,7 @@ const Analytics = () => {
           {isLoading && <Loader2 className="w-3.5 h-3.5 text-muted-foreground animate-spin ml-auto" />}
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr className="border-b border-border text-muted-foreground text-left">
                 <th className="p-4 font-medium">Title</th>

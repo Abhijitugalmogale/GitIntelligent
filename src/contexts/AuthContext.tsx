@@ -1,77 +1,78 @@
-import { useState, createContext, useContext, useCallback } from "react";
-import { getAuthenticatedUser, GitHubUser } from "@/services/githubApi";
-
-const TOKEN_KEY = "gh_pat";
-const USER_KEY = "gh_user";
+import { useState, createContext, useContext, useCallback, useEffect } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  isLoading: boolean;
   token: string | null;
   user: { name: string; avatar: string; login: string } | null;
-  login: (username: string, token: string) => Promise<void>;
-  logout: () => void;
+  loginWithGitHub: () => void;
+  logout: () => Promise<void>;
+  fetchSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
+  isLoading: true,
   token: null,
   user: null,
-  login: async () => { },
-  logout: () => { },
+  loginWithGitHub: () => { },
+  logout: async () => { },
+  fetchSession: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
 
-function storedUser() {
-  try {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function toUser(gh: GitHubUser) {
-  return {
-    name: gh.name || gh.login,
-    avatar: gh.avatar_url,
-    login: gh.login,
-  };
-}
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState<string | null>(
-    () => localStorage.getItem(TOKEN_KEY)
-  );
-  const [user, setUser] = useState<AuthContextType["user"]>(() => storedUser());
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthContextType["user"]>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback(async (username: string, pat: string) => {
-    // Validate by fetching the authenticated user — throws on bad credentials
-    const ghUser = await getAuthenticatedUser(pat);
-
-    if (ghUser.login.toLowerCase() !== username.toLowerCase()) {
-      throw new Error(
-        "Token does not belong to that username. Please double-check."
-      );
+  const fetchSession = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        setToken(data.token);
+        setUser({
+          name: data.user?.name || data.user?.login,
+          avatar: data.user?.avatar_url,
+          login: data.user?.login,
+        });
+      } else {
+        setToken(null);
+        setUser(null);
+      }
+    } catch (e) {
+      console.error("Failed to fetch session", e);
+      setToken(null);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
     }
-
-    const userData = toUser(ghUser);
-    localStorage.setItem(TOKEN_KEY, pat);
-    localStorage.setItem(USER_KEY, JSON.stringify(userData));
-    setToken(pat);
-    setUser(userData);
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+  useEffect(() => {
+    fetchSession();
+  }, [fetchSession]);
+
+  const loginWithGitHub = useCallback(() => {
+    window.location.href = "/api/auth/github";
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout failed", e);
+    }
     setToken(null);
     setUser(null);
   }, []);
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated: !!token && !!user, token, user, login, logout }}
+      value={{ isAuthenticated: !!token && !!user, isLoading, token, user, loginWithGitHub, logout, fetchSession }}
     >
       {children}
     </AuthContext.Provider>
